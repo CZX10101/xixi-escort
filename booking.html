@@ -17,33 +17,66 @@
         <h1>Simulated Booking</h1>
         <div class="card">
             <h2>Calculate Your Price</h2>
-            <label>Map Type:</label>
-            <select id="map" onchange="calculateTotal()">
-                <option value="0">Zero Dam (Normal) - $0</option>
-                <option value="10">Zero Dam (Secret) - $10</option>
-                <option value="20">Space City (Secret) - $20</option>
+            
+            <label>Map Type (地图模式):</label>
+            <select id="map" onchange="checkRulesAndCalculate()">
+                <option value="10">机密局 (Confidential) - $10</option>
+                <option value="20">绝密局 (Top Secret) - $20</option>
             </select>
             <br><br>
-            <label>Escort Level:</label>
-            <select id="level" onchange="calculateTotal()">
-                <option value="0">Standard (普通打手) - $0</option>
-                <option value="15">Elite (精英) - $15</option>
-                <option value="30">God Tier (顶尖大神) - $30</option>
+
+            <label>Escort Level (打手级别):</label>
+            <select id="level" onchange="checkRulesAndCalculate()">
+                <option value="0">211 (仅限机密) - $0</option>
+                <option value="15">985 (精英) - $15</option>
+                <option value="30">大专 (绝活哥) - $30</option>
+                <option value="50">明星 (全服顶尖) - $50</option>
             </select>
             <br><br>
-            <h3 style="color:#fff;">Total Estimated Cost: <span id="totalPrice" style="color:var(--primary-color);">$0</span></h3>
-            <button onclick="submitOrder()" style="margin-top:15px; padding:10px 20px; background:var(--primary-color); color:#000; border:none; font-weight:bold; cursor:pointer;">Confirm Booking</button>
+
+            <!-- 用来提示兼容性错误的红字 -->
+            <p id="error-msg" style="color: #e74c3c; font-weight: bold; display: none;">
+                ⚠️ 211 打手只能接机密局！请更换打手或地图。
+            </p>
+
+            <h3 style="color:#fff;">Total Estimated Cost: <span id="totalPrice" style="color:var(--primary-color);">$10</span></h3>
+            
+            <button id="submit-btn" onclick="submitOrder()" style="margin-top:15px; padding:10px 20px; background:var(--primary-color); color:#000; border:none; font-weight:bold; cursor:pointer;">Confirm Booking</button>
         </div>
     </div>
+
     <script>
+        function checkRulesAndCalculate() {
+            let mapValue = document.getElementById('map').value;
+            let levelValue = document.getElementById('level').value;
+            
+            let errorMsg = document.getElementById('error-msg');
+            let submitBtn = document.getElementById('submit-btn');
+
+            // 核心业务逻辑：如果选了 211 (value="0")，且选了绝密局 (value="20")
+            if (levelValue === "0" && mapValue === "20") {
+                errorMsg.style.display = "block"; // 显示红字警告
+                submitBtn.disabled = true; // 禁用下单按钮
+                document.getElementById('totalPrice').innerText = "N/A";
+            } else {
+                errorMsg.style.display = "none"; // 隐藏警告
+                submitBtn.disabled = false; // 恢复下单按钮
+                calculateTotal(); // 正常计算价格
+            }
+        }
+
         function calculateTotal() {
             let mapPrice = parseInt(document.getElementById('map').value);
             let levelPrice = parseInt(document.getElementById('level').value);
-            let total = mapPrice + levelPrice;
-            document.getElementById('totalPrice').innerText = "$" + total;
+            
+            // 如果没报错，就正常计算
+            if (!document.getElementById('error-msg').style.display || document.getElementById('error-msg').style.display === "none") {
+                document.getElementById('totalPrice').innerText = "$" + (mapPrice + levelPrice);
+            }
         }
+
         function submitOrder() {
-            alert("Booking Simulated! Please contact our support on WeChat to complete the order.");
+            alert("预订成功！(Simulated) Please contact Xixi Escort support on WeChat to complete payment.");
         }
     </script>
 </body>
